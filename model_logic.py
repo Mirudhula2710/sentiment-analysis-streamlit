@@ -8,14 +8,9 @@ with open("config.yaml", "r") as f:
 
 @st.cache_resource
 def get_pipeline(task):
-    """Loads and caches the heavy AI models."""
-    model_id = config['models'].get(task)
-    
-    # top_k=None ensures we get scores for ALL labels (Pos/Neg/Neu)
-    if task == "sentiment-analysis":
-        return pipeline(task, model=model_id, top_k=None)
-    
-    return pipeline(task, model=model_id)
+    # HARDCODE this for one run to force the download
+    model_id = "cardiffnlp/twitter-roberta-base-sentiment-latest" 
+    return pipeline(task, model=model_id, top_k=None)
 
 def analyze_text(text):
     pipe = get_pipeline("sentiment-analysis")
