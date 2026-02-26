@@ -4,26 +4,44 @@ import model_logic as ml
 
 st.set_page_config(page_title="AI Workstation", layout="wide")
 
-# 1. Sidebar for History and Settings
-st.sidebar.title("Settings & History")
-task = st.sidebar.selectbox("Choose Task", ["Sentiment", "Image Classify", "Audio Transcribe"])
+st.sidebar.title("🛠️ AI Tools")
+task = st.sidebar.selectbox("Choose Task", ["Sentiment", "Image Classify"])
 
-# 2. Main Interface
 st.title("🚀 Multi-Purpose AI Workstation")
 
 if task == "Sentiment":
-    user_input = st.text_area("Enter Text:")
-    if st.button("Analyze") and user_input:
-        res = ml.analyze_text(user_input)
-        st.write(f"Result: {res['label']} ({res['score']:.2f})")
+    user_input = st.text_area("Enter Text:", placeholder="e.g., The sun is a star.")
+    
+    if st.button("Analyze"):
+        if user_input:
+            with st.spinner('Calculating probabilities...'):
+                # Get the full list of results
+                results = ml.analyze_text(user_input)
+                
+                # 1. Show the Bar Chart (Crucial for seeing 'Uncertainty')
+                st.subheader("Confidence Breakdown")
+                chart_data = {res['label'].capitalize(): res['score'] for res in results}
+                st.bar_chart(chart_data)
+                
+                # 2. Show the Final Verdict
+                top_res = results[0] # Highest score is always first
+                label = top_res['label'].capitalize()
+                score = top_res['score']
+                
+                if label == "Positive":
+                    st.success(f"Verdict: {label} (Confidence: {score:.2f})")
+                elif label == "Neutral":
+                    st.info(f"Verdict: {label} (Confidence: {score:.2f})")
+                else:
+                    st.error(f"Verdict: {label} (Confidence: {score:.2f})")
+        else:
+            st.warning("Please enter some text first.")
 
 elif task == "Image Classify":
-    uploaded_file = st.file_uploader("Upload an Image", type=['jpg', 'png', 'jpeg'])
+    uploaded_file = st.file_uploader("Upload Image", type=['jpg', 'jpeg', 'png'])
     if uploaded_file:
         img = Image.open(uploaded_file)
-        st.image(img, caption="Uploaded Image", width=300)
+        st.image(img, width=300)
         if st.button("Identify"):
-            res = ml.analyze_image(img)
+            res = ml.identify_image(img)
             st.json(res)
-
-# (Add similar logic for Audio using st.audio_input)
