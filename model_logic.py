@@ -19,8 +19,21 @@ def get_pipeline(task):
 
 def analyze_text(text):
     pipe = get_pipeline("sentiment-analysis")
-    # Returns a list of dictionaries, e.g., [{'label': 'neutral', 'score': 0.8}, ...]
-    return pipe(text)
+    raw_results = pipe(text)[0]
+    
+    # RoBERTa-latest mapping: 
+    # LABEL_0 -> Negative, LABEL_1 -> Neutral, LABEL_2 -> Positive
+    mapping = {"neutral": "Neutral", "positive": "Positive", "negative": "Negative"}
+    
+    # If the model uses labels like 'LABEL_0', we fix them here
+    clean_results = []
+    for res in raw_results:
+        label = res['label'].lower()
+        # Map technical labels to human words
+        final_label = mapping.get(label, label)
+        clean_results.append({"label": final_label, "score": res['score']})
+        
+    return clean_results
 
 def analyze_image(image):
     pipe = get_pipeline("image-classification")
