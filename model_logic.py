@@ -24,8 +24,12 @@ def analyze_text(text):
     return raw_results
 
 def analyze_image(image):
+    # This pulls the 'vision' model from your config.yaml
     pipe = get_pipeline("image-classification")
-    return pipe(image)
+    
+    # Returns the top 5 predictions by default
+    results = pipe(image)
+    return results
 
 def transcribe_audio(audio_file):
     pipe = get_pipeline("automatic-speech-recognition")
