@@ -16,7 +16,8 @@ if task == "Sentiment":
         if user_input:
             with st.spinner('Calculating probabilities...'):
                 # Get the full list of results
-                results = ml.analyze_text(user_input)
+                # Add [0] at the end to "un-nest" the list
+                results = ml.analyze_text(user_input)[0]
                 
                 # 1. Show the Bar Chart (Crucial for seeing 'Uncertainty')
                 st.subheader("Confidence Breakdown")
