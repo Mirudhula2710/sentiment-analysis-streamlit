@@ -40,10 +40,24 @@ if task == "Sentiment":
                 else:
                     st.error(f"Verdict: Negative ({score:.2f})")
 elif task == "Image Classify":
-    uploaded_file = st.file_uploader("Upload Image", type=['jpg', 'jpeg', 'png'])
-    if uploaded_file:
-        img = Image.open(uploaded_file)
-        st.image(img, width=300)
-        if st.button("Identify"):
-            res = ml.identify_image(img)
-            st.json(res)
+    # Allows both file upload and iPad camera use
+    uploaded_file = st.file_uploader("Upload an Image", type=['jpg', 'jpeg', 'png'])
+    camera_file = st.camera_input("Or take a photo")
+
+    # Use whichever input is available
+    input_image = uploaded_file or camera_file
+
+    if input_image:
+        img = Image.open(input_image)
+        st.image(img, caption="Target Image", use_container_width=True)
+        
+        if st.button("Identify Object"):
+            with st.spinner('Scanning...'):
+                results = ml.analyze_image(img)
+                
+                # Display results as a clean list with progress bars
+                st.subheader("Results:")
+                for res in results:
+                    col1, col2 = st.columns([1, 2])
+                    col1.write(res['label'])
+                    col2.progress(res['score'])
