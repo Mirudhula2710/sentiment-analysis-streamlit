@@ -15,29 +15,30 @@ if task == "Sentiment":
     if st.button("Analyze"):
         if user_input:
             with st.spinner('Calculating probabilities...'):
-                # Get the full list of results
-                # Add [0] at the end to "un-nest" the list
-                results = ml.analyze_text(user_input)[0]
+                # Get the clean list of results
+                results = ml.analyze_text(user_input)
                 
-                # 1. Show the Bar Chart (Crucial for seeing 'Uncertainty')
-                st.subheader("Confidence Breakdown")
+                # Sort results so the highest score is first for the verdict
+                results = sorted(results, key=lambda x: x['score'], reverse=True)
+                
+                # 1. Create Chart Data
                 chart_data = {res['label'].capitalize(): res['score'] for res in results}
+                
+                # 2. Display Bar Chart
+                st.subheader("Confidence Breakdown")
                 st.bar_chart(chart_data)
                 
-                # 2. Show the Final Verdict
-                top_res = results[0] # Highest score is always first
+                # 3. Show the Verdict
+                top_res = results[0]
                 label = top_res['label'].capitalize()
                 score = top_res['score']
                 
                 if label == "Positive":
-                    st.success(f"Verdict: {label} (Confidence: {score:.2f})")
-                elif label == "Neutral":
-                    st.info(f"Verdict: {label} (Confidence: {score:.2f})")
+                    st.success(f"Verdict: {label} ({score:.2f})")
+                elif label in ["Neutral", "Label_1"]: # Handles different model naming
+                    st.info(f"Verdict: Neutral ({score:.2f})")
                 else:
-                    st.error(f"Verdict: {label} (Confidence: {score:.2f})")
-        else:
-            st.warning("Please enter some text first.")
-
+                    st.error(f"Verdict: Negative ({score:.2f})")
 elif task == "Image Classify":
     uploaded_file = st.file_uploader("Upload Image", type=['jpg', 'jpeg', 'png'])
     if uploaded_file:
