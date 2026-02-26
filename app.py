@@ -1,24 +1,29 @@
 import streamlit as st
-from model_logic import get_sentiment
+from PIL import Image
+import model_logic as ml
 
-st.set_page_config(page_title="AI Sentiment Analyzer")
+st.set_page_config(page_title="AI Workstation", layout="wide")
 
-st.title("😊 Sentiment Analysis App")
-st.write("Using Python, Hugging Face, and Streamlit.")
+# 1. Sidebar for History and Settings
+st.sidebar.title("Settings & History")
+task = st.sidebar.selectbox("Choose Task", ["Sentiment", "Image Classify", "Audio Transcribe"])
 
-user_input = st.text_area("Type something here:")
+# 2. Main Interface
+st.title("🚀 Multi-Purpose AI Workstation")
 
-if st.button("Analyze"):
-    if user_input:
-        with st.spinner('Thinking...'):
-            result = get_sentiment(user_input)
-            label = result['label']
-            score = result['score']
-            
-        if label == "POSITIVE":
-            st.success(f"Positive! (Confidence: {score:.2f})")
-        else:
-            st.error(f"Negative! (Confidence: {score:.2f})")
-    else:
-        st.warning("Please enter text first.")
-          
+if task == "Sentiment":
+    user_input = st.text_area("Enter Text:")
+    if st.button("Analyze") and user_input:
+        res = ml.analyze_text(user_input)
+        st.write(f"Result: {res['label']} ({res['score']:.2f})")
+
+elif task == "Image Classify":
+    uploaded_file = st.file_uploader("Upload an Image", type=['jpg', 'png', 'jpeg'])
+    if uploaded_file:
+        img = Image.open(uploaded_file)
+        st.image(img, caption="Uploaded Image", width=300)
+        if st.button("Identify"):
+            res = ml.analyze_image(img)
+            st.json(res)
+
+# (Add similar logic for Audio using st.audio_input)
