@@ -1,3 +1,2 @@
 models:
-  # This model has 3 labels: Negative, Neutral, Positive
   sentiment: "cardiffnlp/twitter-roberta-base-sentiment-latest"
